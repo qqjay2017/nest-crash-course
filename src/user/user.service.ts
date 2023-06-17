@@ -16,10 +16,19 @@ export class UserService {
       },
     });
   }
+  async findOnByUserName(username: string) {
+    return this.userRepo.findOne({
+      where: {
+        email: username,
+      },
+    });
+  }
   async create(createUserDto: CreateUserDto) {
     const user = this.userRepo.create(createUserDto);
 
-    return await this.userRepo.save(user);
+    await this.userRepo.save(user);
+    const { password, ...result } = user;
+    return result;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
