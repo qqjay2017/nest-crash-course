@@ -31,6 +31,12 @@ export class User {
   })
   password: string;
 
+  @Column({
+    nullable: true,
+    default: 0,
+  })
+  recommendations: number;
+
   @OneToMany((type) => Comment, (comment) => comment.user)
   comments: Comment[];
 

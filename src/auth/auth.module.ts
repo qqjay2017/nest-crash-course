@@ -17,7 +17,7 @@ import { RefreshJwtStrategy } from './strategies/refreshToken.strategy';
       secret: `${process.env.jwt_secret}`,
       signOptions: {
         // 一小时
-        expiresIn: '3600s',
+        expiresIn: '7d',
       },
     }),
   ],
