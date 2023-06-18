@@ -15,6 +15,12 @@ import { UserService } from 'src/user/user.service';
 import { JwtGuard } from './guards/jwt-auth.guard';
 import { retry } from 'rxjs';
 import { RefreshJwtGuard } from './guards/refresh-jwt-auth.guard';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -22,25 +28,38 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UserService,
   ) {}
-  @UseGuards(LocalAuthGuard)
-  @HttpCode(HttpStatus.OK)
   @Post('login')
+  @UseGuards(LocalAuthGuard)
+  @ApiTags('auth')
+  @ApiOperation({ summary: '登录' })
+  @HttpCode(HttpStatus.OK)
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
-
   @Post('register')
+  @ApiTags('auth')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '注册' })
   async registerUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
-  @UseGuards(JwtGuard)
   @Get('profile')
+  @ApiBearerAuth()
+  @ApiTags('auth')
+  @UseGuards(JwtGuard)
+  @ApiOperation({ summary: '获取用户信息' })
   getProfile(@Request() req) {
     return req.user;
   }
-
-  @UseGuards(RefreshJwtGuard)
   @Post('refresh')
+  @ApiTags('auth')
+  @UseGuards(RefreshJwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '刷新token' })
+  @ApiResponse({
+    status: 200,
+    description: 'The found record',
+  })
   async refreshToken(@Request() req) {
     return this.authService.refreshToken(req.user);
   }

@@ -1,20 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dto/createUserDto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
+    private dataSource: DataSource,
   ) {}
   async findOne(id: number) {
-    return await this.userRepo.findOne({
+    const user = await this.userRepo.findOne({
       where: {
         id: id,
       },
     });
+
+    if (!user) {
+      // throw new HttpException(`user #${id} not found`, HttpStatus.NOT_FOUND);
+      throw new NotFoundException(`user #${id} not found`);
+    }
+
+    return user;
   }
   async findOnByUserName(username: string) {
     return this.userRepo.findOne({
@@ -24,11 +40,15 @@ export class UserService {
     });
   }
   async create(createUserDto: CreateUserDto) {
-    const user = this.userRepo.create(createUserDto);
+    try {
+      const user = this.userRepo.create(createUserDto);
 
-    await this.userRepo.save(user);
-    const { password, ...result } = user;
-    return result;
+      await this.userRepo.save(user);
+      const { password, ...result } = user;
+      return result;
+    } catch (error) {
+      throw new BadRequestException(`注册失败,用户已存在 `);
+    }
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
