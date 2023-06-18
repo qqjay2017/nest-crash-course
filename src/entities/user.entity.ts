@@ -35,6 +35,7 @@ export class User {
   comments: Comment[];
 
   @BeforeInsert()
+  @BeforeUpdate()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
   }
