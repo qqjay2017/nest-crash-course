@@ -6,12 +6,17 @@ import { CommentModule } from './comment/comment.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import config from 'ormconfig';
-
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 @Module({
   imports: [
+    TypeOrmModule.forRoot(config),
+    ConfigModule.forRoot({
+      load: [configuration],
+    }),
     UserModule,
     CommentModule,
-    TypeOrmModule.forRoot(config),
+
     AuthModule,
   ],
   controllers: [AppController],
